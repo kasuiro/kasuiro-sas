@@ -1,0 +1,117 @@
+---
+import { benefits, faqs, steps, tagline } from '../data/home';
+---
+
+<section id="beneficios" aria-labelledby="beneficios-titulo" class="container-page py-16">
+  <p class="eyebrow">Ruta de Madurez Digital</p>
+  <h2 id="beneficios-titulo" class="mt-3 max-w-[680px] text-3xl sm:text-5xl">
+    Tres fases para centralizar la operación, automatizar la venta y conectar los datos en tiempo real
+  </h2>
+  <ul class="mt-10 grid gap-6 md:grid-cols-3">
+    {
+      benefits.map((benefit) => (
+        <li class="card flex flex-col">
+          <h3 class="text-xl">{benefit.title}</h3>
+          <p class="mt-3 text-sm text-muted">{benefit.text}</p>
+          <a class="mt-6 text-sm font-semibold text-cian-texto hover:underline" href={benefit.href}>
+            Ver detalle
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<section id="como-funciona" aria-labelledby="como-funciona-titulo" class="container-page py-16">
+  <p class="eyebrow">Cómo trabajamos</p>
+  <h2 id="como-funciona-titulo" class="mt-3 max-w-[680px] text-3xl sm:text-5xl">
+    Avanzas por pasos, sin contratar un equipo de TI completo
+  </h2>
+  <ol class="mt-10 grid gap-6 md:grid-cols-3">
+    {
+      steps.map((step, i) => (
+        <li class="card">
+          <p class="text-xs font-medium tracking-widest text-magenta uppercase">
+            Paso {i + 1}
+          </p>
+          <h3 class="mt-3 text-lg">{step.title}</h3>
+          <p class="mt-2 text-sm text-muted">{step.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+  <p class="mt-6 text-sm text-muted">
+    Las tres fases se pueden contratar por separado. Los proyectos se ejecutan con Scrum, sprints de 2 semanas.
+  </p>
+</section>
+
+<section aria-labelledby="declaracion-titulo" class="container-page py-24">
+  <h2 id="declaracion-titulo" class="sr-only">Nuestra declaración de valor</h2>
+  <p data-tagline class="max-w-[680px] text-4xl sm:text-5xl">
+    {
+      tagline.map((line) => (
+        <span class="block">
+          {line.split(' ').map((word, i, all) => (
+            <>
+              <span data-word>{word}</span>{i < all.length - 1 ? ' ' : ''}
+            </>
+          ))}
+        </span>
+      ))
+    }
+  </p>
+</section>
+
+<section id="faq" aria-labelledby="faq-titulo" class="container-page py-16">
+  <p class="eyebrow">Preguntas frecuentes</p>
+  <h2 id="faq-titulo" class="mt-3 max-w-[680px] text-3xl sm:text-5xl">Antes de dar el siguiente paso</h2>
+  <div class="mt-8 grid gap-4 md:grid-cols-2">
+    {
+      faqs.map(({ question, answer }) => (
+        <details class="card">
+          <summary class="cursor-pointer font-semibold">{question}</summary>
+          <p class="mt-3 text-sm text-muted">{answer}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>
+
+<section aria-labelledby="cta-final-titulo" class="container-page py-16">
+  <div class="card flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h2 id="cta-final-titulo" class="max-w-[680px] text-2xl">Empieza con un diagnóstico de 3 días hábiles</h2>
+      <p class="mt-3 max-w-[680px] text-sm text-muted">
+        Si firmas la Fase 1 en 30 días, el valor de la auditoría se descuenta del primer pago.
+      </p>
+    </div>
+    <a class="btn shrink-0" href="/auditoria-express">Solicitar Auditoría Express</a>
+  </div>
+</section>
+
+<script>
+  import '../scripts/tagline';
+</script>
+
+<style>
+  [data-word] {
+    opacity: 0.3;
+    transition: opacity 800ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  [data-word].is-on {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-word] {
+      opacity: 1;
+      transition: none;
+    }
+  }
+
+  :global(.pausar-animaciones) [data-word] {
+    opacity: 1;
+    transition: none;
+  }
+</style>

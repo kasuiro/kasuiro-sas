@@ -96,6 +96,8 @@ src/
 │   └── world.ts            Selección del clip activo, foco, raíl y pausa al ocultar la pestaña
 ├── styles/global.css       Paleta verificada, botones, tarjetas y fondo decorativo
 public/
+├── brand/
+│   └── kasuiro-icon-tight.png  Ícono oficial, sin redibujar: favicon, cabecera y pie
 ├── video/
 │   ├── kasuiro-loop-{1..6}.mp4       Loops de 2 s con la paleta (prototipo, no arte oficial)
 │   └── posters/kasuiro-{1..6}.webp   Pósteres para fallback y carga
@@ -124,8 +126,10 @@ ninguna referencia a ese proyecto en el código ni en los archivos del repo.
 - Widget flotante de accesibilidad: tamaño de texto, contraste alto y pausa de animaciones, con
   preferencias persistidas en `localStorage` y aplicadas antes de pintar.
 - Se respeta `prefers-reduced-motion`.
-- **No se crea un isotipo propio**: el Manual prohíbe presentar como oficial una versión
-  redibujada. El logo real está pendiente.
+- **Ícono original** `kasuiro-icon-tight.png` (copia byte a byte del entregable de marca) en el
+  favicon, la cabecera y el pie. No se redibuja, se recolora ni se presenta una versión propia como
+  oficial. El archivo vectorial y la tipografía oficial siguen pendientes de confirmación; el
+  logotipo completo y los mockups quedan reservados para piezas de branding fuera de la web.
 
 ## Fondo scrolleable de la portada
 
@@ -236,9 +240,10 @@ disponible en este equipo pertenece a otra cuenta y devuelve `403`.
 
 - Dominio propio y SSL; `site` sigue apuntando al `*.workers.dev`.
 - Token de Cloudflare con acceso a la cuenta `kasuirogroup`.
-- Isotipo y tipografía oficiales (sin confirmar en el Manual).
+- Archivo vectorial del logotipo y tipografía oficiales. El ícono PNG original ya está integrado;
+  el logotipo completo y los mockups de marca se guardan fuera del repo para otras piezas.
 - Sustituir los clips y pósteres de prueba del fondo por material oficial de marca cuando Julián
-  confirme logo y tipografía.
+  confirme logo vectorial y tipografía.
 - Configurar GA4 y Search Console: crear la propiedad, obtener los valores para `.env`, verificar
   la propiedad con la URL canónica vigente y enviar el sitemap. El código ya está preparado y no
   inyecta nada mientras las variables estén vacías; el consentimiento requiere revisión legal.

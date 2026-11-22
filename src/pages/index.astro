@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ScrollStage from '../components/ScrollStage.astro';
+import HomeContent from '../components/HomeContent.astro';
+import { faqs } from '../data/home';
 
-const jsonLd = JSON.stringify({
+const organization = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Kasuiro S.A.S.',
@@ -10,7 +12,19 @@ const jsonLd = JSON.stringify({
   description: 'Ayuda a pymes a digitalizar sus procesos sin contratar un equipo de TI completo.',
   url: Astro.site?.href,
   inLanguage: 'es',
-}).replaceAll('<', '\\u003c');
+};
+
+const faq = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ question, answer }) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+
+const jsonLd = JSON.stringify([organization, faq]).replaceAll('<', '\\u003c');
 ---
 
 <Layout
@@ -20,4 +34,5 @@ const jsonLd = JSON.stringify({
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
 
   <ScrollStage />
+  <HomeContent />
 </Layout>
