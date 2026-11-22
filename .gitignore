@@ -26,9 +26,8 @@ pnpm-debug.log*
 # wrangler
 .wrangler/
 
-# media de trabajo: vídeos, keyframes y respuestas de Higgsfield (pesan mucho o llevan URLs de la cuenta)
+# material de trabajo pesado que no debe subirse al repo
 media/**/*.mp4
 media/**/*.webm
 media/**/*.jpg
 media/**/*.log
-media/scroll-world/pruebas/*.json

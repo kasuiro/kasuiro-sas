@@ -87,10 +87,15 @@ src/
 │   ├── Header.astro        Menú responsive y alternador claro/oscuro
 │   └── Footer.astro        Lema, enlaces legales y copyright
 ├── styles/global.css       Paleta verificada, botones, tarjetas y fondo decorativo
-└── data/                   Archivos heredados de la plantilla original (sin uso)
-public/                     Assets heredados de la plantilla original (sin uso)
+public/
+├── _headers                Caché de un año para los archivos con hash de /_astro/
+└── site.webmanifest        Manifest de Kasuiro SAS
 wrangler.jsonc              Worker `kasuiro-sas`, sirve `./dist` con página 404 propia
 ```
+
+La plantilla original aportaba la base técnica (Astro, Tailwind, sitemap, Cloudflare), pero su
+contenido de restaurante se retiró: vídeos, fotos, fuentes, componentes de scroll, datos y
+prompts. No queda ninguna referencia a ese proyecto en el código ni en los archivos del repo.
 
 ## Identidad visual
 
@@ -137,9 +142,9 @@ disponible en este equipo pertenece a otra cuenta y devuelve `403`.
 - Conectar el formulario de Auditoría Express a **Resend** y verificar el dominio de envío
   (decisión de Julián, 22-nov-2026; Brevo queda descartado).
 - Redactar la política de Habeas Data con revisión legal.
-- Retirar en una limpieza aprobada los componentes, datos y assets del proyecto base del que
-  se clonó el repo; hoy están en `src/data/`, `src/components/` (secciones antiguas) y `public/`
-  sin ser referenciados.
+- Los únicos archivos genéricos que se conservan de la plantilla son `AGENTS.md`,
+  `CLAUDE.md`, `.vscode/` y `.claude/skills/landing-page-design/SKILL.md` (skill de diseño,
+  sin contenido de marca). Si no aporta valor, retirarla en una limpieza aprobada.
 
 ## Fuentes
 
