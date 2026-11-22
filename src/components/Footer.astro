@@ -1,5 +1,7 @@
 ---
 const year = new Date().getFullYear();
+// El control de medición solo aparece si GA4 está configurado en el build.
+const medicionDisponible = Boolean(import.meta.env.PUBLIC_GA4_MEASUREMENT_ID);
 ---
 
 <footer class="mt-20 border-t border-line py-10">
@@ -14,7 +16,30 @@ const year = new Date().getFullYear();
     </nav>
     <p class="text-sm text-muted">© {year} Kasuiro SAS</p>
   </div>
+  {medicionDisponible && (
+    <label class="container-page mt-4 flex items-center gap-2 text-xs text-muted">
+      <input id="medicion-optin" type="checkbox" />
+      Permitir medición de uso del sitio (se aplica al recargar)
+    </label>
+  )}
   <p class="container-page mt-4 text-xs text-muted">
     Integración del isotipo oficial: pendiente (no se redibuja ni se presenta una versión propia como oficial).
   </p>
 </footer>
+
+{medicionDisponible && (
+  <script define:vars={{ medicionDisponible: true }}>
+    (function () {
+      var casilla = document.getElementById('medicion-optin');
+      if (!casilla) return;
+      try {
+        casilla.checked = localStorage.getItem('kasuiro-analitica') === 'si';
+      } catch (e) {}
+      casilla.addEventListener('change', function () {
+        try {
+          localStorage.setItem('kasuiro-analitica', casilla.checked ? 'si' : 'no');
+        } catch (e) {}
+      });
+    })();
+  </script>
+)}

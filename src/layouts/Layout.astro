@@ -15,6 +15,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 const robots = noindex
   ? 'noindex, follow'
   : 'index, follow, max-image-preview:large, max-snippet:-1';
+
+// Analítica y verificación de Search Console: solo se inyectan si hay valores.
+// El ID de medición es público; el token de GSC también va en el HTML (método meta tag).
+const ga4Id = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID;
+const gscToken = import.meta.env.PUBLIC_GSC_VERIFICATION;
 ---
 
 <!doctype html>
@@ -37,6 +42,37 @@ const robots = noindex
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    {gscToken && <meta name="google-site-verification" content={gscToken} />}
+    {ga4Id && (
+      <script define:vars={{ ga4Id }}>
+        // GA4 solo se carga si la persona aceptó la medición. Sin consentimiento,
+        // no se descarga gtag ni se envían eventos (consent mode: denied por defecto).
+        (function () {
+          try {
+            if (localStorage.getItem('kasuiro-analitica') !== 'si') return;
+          } catch (e) {
+            return;
+          }
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            window.dataLayer.push(arguments);
+          }
+          window.gtag = gtag;
+          gtag('consent', 'default', {
+            analytics_storage: 'granted',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied'
+          });
+          gtag('js', new Date());
+          gtag('config', ga4Id, { anonymize_ip: true });
+          var script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4Id);
+          document.head.appendChild(script);
+        })();
+      </script>
+    )}
     <script is:inline>
       // Tema persistente sin parpadeo: se aplica antes de pintar el body.
       (function () {

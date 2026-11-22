@@ -10,6 +10,7 @@ pendiente).
 
 **Stack:** [Astro 7](https://astro.build) · [Tailwind CSS 4](https://tailwindcss.com) ·
 [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/) ·
+[Lenis](https://lenis.dev/) + [GSAP ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/) (fondo scrolleable de la portada) ·
 [Cloudflare Workers](https://developers.cloudflare.com/workers/) (assets estáticos + un Worker mínimo para el formulario).
 
 ## Puesta en marcha
@@ -75,7 +76,7 @@ src/
 │   ├── recursos/           1 artículo publicado + 1 borrador de CRM
 │   └── casos-exito/        Vacío; marcador pendiente
 ├── pages/
-│   ├── index.astro         Portada: lema, fases y servicios
+│   ├── index.astro         Portada: fondo scrolleable con seis paradas
 │   ├── servicios/          Listado y detalle por slug
 │   ├── recursos/           Listado y detalle por slug
 │   ├── casos-exito/        Estado pendiente
@@ -84,22 +85,32 @@ src/
 │   ├── robots.txt.ts       Enlace al sitemap
 │   ├── llms.txt.ts         Resumen en texto plano para asistentes de IA
 │   └── 404.astro
-├── layouts/Layout.astro    Metas, Open Graph, canonical, tema y navegación
+├── layouts/Layout.astro    Metas, canonical, tema, GA4 y verificación de GSC
 ├── components/
 │   ├── Header.astro        Menú responsive y alternador claro/oscuro
-│   └── Footer.astro        Lema, enlaces legales y copyright
+│   ├── Footer.astro        Enlaces legales y control de consentimiento de medición
+│   └── ScrollStage.astro   Escenario fijo, clips en loop, raíl y textos de las paradas
+├── data/scroll.ts          Seis paradas: textos, clips, pósteres y CTA (sin inventar copys)
+├── scripts/
+│   ├── motion.ts           Lenis + ScrollTrigger + entradas con IntersectionObserver
+│   └── world.ts            Selección del clip activo, foco, raíl y pausa al ocultar la pestaña
 ├── styles/global.css       Paleta verificada, botones, tarjetas y fondo decorativo
 public/
+├── video/
+│   ├── kasuiro-loop-{1..6}.mp4       Loops de 2 s con la paleta (prototipo, no arte oficial)
+│   └── posters/kasuiro-{1..6}.webp   Pósteres para fallback y carga
 ├── _headers                Caché de un año para los archivos con hash de /_astro/
 └── site.webmanifest        Manifest de Kasuiro SAS
 worker/index.ts             Worker mínimo: sirve assets y atiende POST /api/auditoria-express
 wrangler.jsonc              Worker `kasuiro-sas`, sirve `./dist` con página 404 propia
-.dev.vars.example           Plantilla de variables de Resend (sin valores reales)
+.dev.vars.example           Plantilla de secretos de Resend para Wrangler (sin valores reales)
+.env.example                Plantilla de variables públicas de compilación (GA4 y GSC)
 ```
 
 La plantilla original aportaba la base técnica (Astro, Tailwind, sitemap, Cloudflare), pero su
-contenido de restaurante se retiró: vídeos, fotos, fuentes, componentes de scroll, datos y
-prompts. No queda ninguna referencia a ese proyecto en el código ni en los archivos del repo.
+contenido de restaurante se retiró: vídeos, fotos, fuentes, datos y prompts. El componente de
+scroll se reescribió desde cero con textos y clips propios (ver `src/data/scroll.ts`). No queda
+ninguna referencia a ese proyecto en el código ni en los archivos del repo.
 
 ## Identidad visual
 
@@ -116,6 +127,22 @@ prompts. No queda ninguna referencia a ese proyecto en el código ni en los arch
 - **No se crea un isotipo propio**: el Manual prohíbe presentar como oficial una versión
   redibujada. El logo real está pendiente.
 
+## Fondo scrolleable de la portada
+
+La portada es un recorrido de seis paradas: inicio, auditoría y las tres fases de la Ruta de
+Madurez Digital, más un cierre. Los textos y los enlaces viven en `src/data/scroll.ts` y proceden
+de las páginas y colecciones ya publicadas; no se inventaron copys.
+
+Los seis clips son **prototipos con la paleta verificada**, no arte oficial: 2 s, 1280×720,
+12 fps, H.264/yuv420p, sin audio y `+faststart`, con un movimiento periódico en `T=2` para que el
+bucle no salte. Ocupan ~447 KB en total. Cada clip se carga solo cuando su parada se activa
+(`preload="none"`), se reproduce en bucle y se pausa al ocultar la pestaña; el scroll elige qué
+clip se ve, nunca congela `currentTime`. Con `prefers-reduced-motion` o ahorro de datos no se
+descarga vídeo: se muestran los pósteres WebP de `public/video/posters/`.
+
+Para sustituir un clip, regenera el MP4 con la misma duración y exporta su primer fotograma a
+`public/video/posters/kasuiro-N.webp`; las rutas están en `src/data/scroll.ts`.
+
 ## SEO
 
 - `site` en `astro.config.mjs` es la URL canónica: de ella salen el canonical, `og:url`, el
@@ -125,6 +152,8 @@ prompts. No queda ninguna referencia a ese proyecto en el código ni en los arch
 - La portada incluye un grafo JSON-LD `Organization` con el nombre, el lema y la descripción.
 - `@astrojs/sitemap` genera el índice de sitemap automáticamente; `robots.txt` lo enlaza. La página
   de agradecimiento se excluye del sitemap porque lleva `noindex`.
+- La verificación de Search Console se añade al `<head>` solo si se define `PUBLIC_GSC_VERIFICATION`.
+  El token es público por diseño (método de etiqueta HTML de Google).
 
 ## Formulario de Auditoría Express
 
@@ -162,6 +191,32 @@ cp .dev.vars.example .dev.vars   # rellenar con valores de prueba
 pnpm dlx wrangler@4 dev
 ```
 
+## Analítica y Search Console
+
+Ambas integraciones están **preparadas pero sin configurar**: si las variables están vacías no se
+inyecta ningún script ni etiqueta en el HTML. Las dos son variables públicas de compilación (Astro
+sustituye `PUBLIC_*` en el build); copiar `.env.example` a `.env` para probarlas en local. `.env`
+está ignorado por git.
+
+| Variable | Uso |
+| :-- | :-- |
+| `PUBLIC_GA4_MEASUREMENT_ID` | ID de medición de GA4 (`G-…`). Sin valor, no hay analítica. |
+| `PUBLIC_GSC_VERIFICATION` | Token del método «Etiqueta HTML» de Search Console. Sin valor, no hay meta tag. |
+
+- GA4 usa `gtag.js` cargado de forma diferida. **No se envían datos sin consentimiento**: el script
+  solo se descarga si la persona marcó «Permitir medición de uso del sitio» (guardado en
+  `localStorage` como `kasuiro-analitica=si`). El control aparece en el pie solo cuando GA4 está
+  configurado y el cambio se aplica al recargar.
+- Se solicitan `analytics_storage: granted` y `ad_storage`, `ad_user_data` y `ad_personalization`
+  en `denied`. Este mecanismo es una medida de privacidad **pendiente de revisión legal**: no
+  sustituye un banner de consentimiento ni la política de Habeas Data.
+- Como alternativa a la variable de GSC, se puede descargar el archivo de verificación que entrega
+  Google y colocarlo en `public/` con el nombre exacto indicado; no requiere tocar el código.
+
+Pasos pendientes de ejecutar (fuera del repo): crear la propiedad de GA4 y el flujo web, verificar
+el sitio en Search Console con la URL canónica vigente, enviar `sitemap-index.xml` y revisar las
+keywords definidas en `Vault/Projects/difusion-web-keywords.md`.
+
 ## Despliegue
 
 `wrangler.jsonc` define el Worker `kasuiro-sas`, que sirve el contenido de `dist/`, usa la página
@@ -182,8 +237,11 @@ disponible en este equipo pertenece a otra cuenta y devuelve `403`.
 - Dominio propio y SSL; `site` sigue apuntando al `*.workers.dev`.
 - Token de Cloudflare con acceso a la cuenta `kasuirogroup`.
 - Isotipo y tipografía oficiales (sin confirmar en el Manual).
-- GA4 y registrar el sitio en Search Console (las keywords y el calendario ya están preparados
-  en las notas del Vault; falta medir y ejecutar).
+- Sustituir los clips y pósteres de prueba del fondo por material oficial de marca cuando Julián
+  confirme logo y tipografía.
+- Configurar GA4 y Search Console: crear la propiedad, obtener los valores para `.env`, verificar
+  la propiedad con la URL canónica vigente y enviar el sitemap. El código ya está preparado y no
+  inyecta nada mientras las variables estén vacías; el consentimiento requiere revisión legal.
 - Verificar el dominio de envío en **Resend**, configurar los secretos del Worker y publicar con
   `PUBLIC_RESEND_ENABLED=true` para habilitar el formulario (decisión de Julián, 22-nov-2026;
   Brevo queda descartado). La integración ya está preparada pero sigue desactivada.
