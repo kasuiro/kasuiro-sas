@@ -7,7 +7,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   // URL canónica del despliegue. PENDIENTE: cambiarla por el dominio propio
   // cuando esté configurado (tarjeta «Montar deploy automático...»).
-  site: 'https://kasuiro-sas.kasuirogroup.workers.dev',
+  site: 'https://kasuiro-sas.kasuiro-sas.workers.dev',
   integrations: [
     sitemap({
       // La página de agradecimiento es noindex: no debe entrar en el sitemap.

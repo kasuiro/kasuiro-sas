@@ -3,10 +3,9 @@
 Sitio de difusión de **Kasuiro S.A.S.** — *Tu Departamento de Tecnología Externalizado*.
 Ayudamos a pymes colombianas a digitalizar sus procesos sin contratar un equipo de TI completo.
 
-Es una web estática hecha con Astro y servida por Cloudflare Workers. El repositorio está
-conectado a Cloudflare; el despliegue queda a la espera de las credenciales de la cuenta
-`kasuirogroup`. URL prevista: `https://kasuiro-sas.kasuirogroup.workers.dev` (dominio propio
-pendiente).
+Es una web estática hecha con Astro y servida por Cloudflare Workers. Desplegada el
+22-nov-2026 en la cuenta `8be33c…` (`julianfajardoc2002-@hotmail.com`) como Worker `kasuiro-sas`.
+URL pública: `https://kasuiro-sas.kasuiro-sas.workers.dev` (dominio propio pendiente).
 
 **Stack:** [Astro 7](https://astro.build) · [Tailwind CSS 4](https://tailwindcss.com) ·
 [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/) ·
@@ -233,13 +232,25 @@ pnpm build
 pnpm dlx wrangler@4 deploy
 ```
 
-El despliegue manual requiere un token con permisos sobre la cuenta de `kasuirogroup`. El token
-disponible en este equipo pertenece a otra cuenta y devuelve `403`.
+Despliegue manual (con OAuth de Wrangler; el token `CLOUDFLARE_API_TOKEN` del entorno apunta a otra
+cuenta y hay que quitarlo con `unset CLOUDFLARE_API_TOKEN` antes de `wrangler login`):
+
+```sh
+unset CLOUDFLARE_API_TOKEN
+export CLOUDFLARE_ACCOUNT_ID=8be33c205df71003417623e57d91e5a6
+export WRANGLER_SEND_METRICS=false
+PUBLIC_RESEND_ENABLED=true pnpm build
+pnpm dlx wrangler@4 deploy
+```
+
+El Worker sirve `dist/` y solo intercepta `POST /api/auditoria-express`. Los secretos de Resend se
+configuran con `wrangler secret put` en la misma sesión autenticada.
 
 ## Pendiente
 
-- Dominio propio y SSL; `site` sigue apuntando al `*.workers.dev`.
-- Token de Cloudflare con acceso a la cuenta `kasuirogroup`.
+- Dominio propio y SSL; `site` apunta al `*.workers.dev` real de la cuenta.
+- Secretos de Resend (`RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TO`) y revisión legal del
+  consentimiento antes de abrir el formulario a visitantes.
 - Archivo vectorial del logotipo y tipografía oficiales. El ícono PNG original ya está integrado;
   el logotipo completo y los mockups de marca se guardan fuera del repo para otras piezas.
 - Sustituir los clips y pósteres de prueba del fondo por material oficial de marca cuando Julián
