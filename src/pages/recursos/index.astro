@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const recursos = (await getCollection('recursos'))
+  .filter((entrada) => !entrada.data.draft)
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<Layout
+  title="Recursos"
+  description="Contenido de Kasuiro SAS sobre digitalización de pymes y soberanía de datos."
+>
+  <section class="container-page py-16">
+    <p class="eyebrow">Recursos</p>
+    <h1 class="mt-3 text-4xl sm:text-5xl">Ideas para ordenar tu operación</h1>
+    {
+      recursos.length === 0 ? (
+        <p class="card mt-10 max-w-2xl text-muted">
+          No hay artículos publicados todavía. Los dos artículos ancla previstos están en
+          borrador y se publicarán cuando su contenido esté validado con fuentes oficiales.
+        </p>
+      ) : (
+        <ul class="mt-12 grid gap-5 md:grid-cols-2">
+          {recursos.map(({ id, data }) => (
+            <li class="card flex flex-col gap-3">
+              <span class="eyebrow">{data.kind}</span>
+              <h2 class="text-2xl">{data.title}</h2>
+              <p class="text-sm text-muted">{data.summary}</p>
+              <a class="mt-auto text-sm font-semibold text-cian-texto hover:underline" href={`/recursos/${data.slug || id}`}>
+                Leer
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</Layout>

@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+const casos = (await getCollection('casosExito'))
+  .filter((entrada) => !entrada.data.draft);
+---
+
+<Layout
+  title="Casos de éxito"
+  description="Casos de clientes de Kasuiro SAS."
+>
+  <section class="container-page py-16">
+    <p class="eyebrow">Casos de éxito</p>
+    <h1 class="mt-3 text-4xl sm:text-5xl">Resultados verificables</h1>
+    {
+      casos.length === 0 ? (
+        <p class="card mt-10 max-w-2xl text-muted">
+          Pendiente: todavía no hay casos de cliente documentados y verificados. La colección
+          <code>casos-exito/</code> ya está definida para publicarlos sin cambiar el código.
+        </p>
+      ) : (
+        <ul class="mt-12 grid gap-5 md:grid-cols-2">
+          {casos.map(({ id, data }) => (
+            <li class="card">
+              <h2 class="text-2xl">{data.title}</h2>
+              <p class="mt-2 text-sm text-muted">{data.summary}</p>
+              <p class="mt-2 text-sm text-muted">{data.cliente} · {data.resultado}</p>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</Layout>

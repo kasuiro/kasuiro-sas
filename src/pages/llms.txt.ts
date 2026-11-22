@@ -1,37 +1,36 @@
 import type { APIRoute } from 'astro';
-import { contacto, experiencias, faqs, links, maridaje, seo } from '../data/arko';
 
 export const GET: APIRoute = ({ site }) => {
   if (!site) throw new Error('Falta site en astro.config.mjs');
   const home = new URL('/', site).href;
-  const experienceLines = experiencias
-    .map((exp) => `- ${exp.nombre}: ${exp.precio} (${exp.porPersona}). ${exp.descripcion}`)
-    .join('\n');
-  const questions = faqs.map((faq) => `### ${faq.pregunta}\n\n${faq.respuesta}`).join('\n\n');
-  const body = `# Arko
+  const body = `# Kasuiro SAS
 
-> ${seo.description}
+> Tu Departamento de Tecnología Externalizado
 
-Cocina japonesa con alma mediterránea. La disciplina japonesa dialoga con el producto mediterráneo y la herencia peruana.
+Ayuda a pymes colombianas a digitalizar sus procesos sin contratar un equipo de TI completo.
+Auditoría, implementación y soporte continuo, con herramientas que ya usan las empresas más ágiles del mundo.
 
-## Datos
+## Datos verificados
 
-- Dirección: ${contacto.calle}, ${contacto.ciudad} (${contacto.barrio})
-- Horario: ${contacto.horario}. ${contacto.cocina}.
-- Teléfono: ${contacto.telefono}
-- Email: ${contacto.email}
-- Cocina: nikkei. Técnica japonesa, producto mediterráneo y herencia peruana.
-${experienceLines}
-- ${maridaje.nombre}: ${maridaje.precio}. ${maridaje.descripcion}
-- Carta: ${links.carta}
-- Reservas: ${links.reservar}
-- Regalar: ${links.regalar}
-- Instagram: ${links.instagram}
+- Razón social: Kasuiro S.A.S.
+- Fundador: Julián Fajardo, CTO y desarrollador full-stack.
+- Cliente objetivo: pymes colombianas sin área de TI propia.
+- Diferencial: un solo socio para estrategia, tecnología y operación, con soberanía de datos.
 - Página: ${home}
 
-## Preguntas frecuentes
+## Servicios
 
-${questions}
+- Auditoría Express: diagnóstico de 3 días hábiles. Desde $400.000 COP.
+- Ruta de Madurez Digital: tres fases (centralización operativa, automatización comercial, conectividad industrial).
+- Soporte continuo: SLA con niveles Básico, Estándar y Prioritario.
+
+## Fuentes
+
+Contenido basado en el Manual de Marca y Contexto — Kasuiro (21 nov 2026). Los precios son
+estimaciones de mercado 2026 y requieren revalidación periódica. Las condiciones legales y
+tributarias requieren revisión de abogado y contador.
+
+Pendiente: logotipo vectorial, tipografía oficial, dominio propio y política de Habeas Data.
 `;
   return new Response(body, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

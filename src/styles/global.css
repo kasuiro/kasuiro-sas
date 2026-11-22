@@ -1,236 +1,167 @@
 @import "tailwindcss";
-@import "lenis/dist/lenis.css";
+
+/* Paleta verificada en el CSS publicado (21-nov-2026). Manual de Marca §5. */
+:root {
+  --ink: #14213d;
+  --ink-soft: #5b6472;
+  --paper: #fafaf8;
+  --bruma: #dcd9d2;
+  --noche: #0f1522;
+  --noche-suave: #1a2333;
+  --niebla: #a9b4c4;
+  --grafito: #2a3548;
+  --magenta: #c2298a;
+  --violeta: #6b3fa0;
+  --cian-texto: #10768b;
+
+  --bg: var(--paper);
+  --surface: #ffffff;
+  --text: var(--ink);
+  --text-soft: var(--ink-soft);
+  --line: var(--bruma);
+  color-scheme: light;
+}
+
+:root.dark {
+  --bg: var(--noche);
+  --surface: var(--noche-suave);
+  --text: var(--paper);
+  --text-soft: var(--niebla);
+  --line: var(--grafito);
+  color-scheme: dark;
+}
 
 @theme inline {
-  --font-display: var(--font-hina), serif;
-  --font-sans: var(--font-zen), sans-serif;
-}
-
-@theme {
-  --color-bg: #131209;
-  --color-crema: #f3eadb;
-  --color-teja: #d0703a;
-  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-/* Recorta el interlineado a la altura de las mayúsculas para centrar el texto ópticamente. */
-@utility text-trim {
-  text-box: trim-both cap alphabetic;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--text);
+  --color-muted: var(--text-soft);
+  --color-line: var(--line);
+  --color-magenta: var(--magenta);
+  --color-violeta: var(--violeta);
+  --color-cian-texto: var(--cian-texto);
+  /* El sitio publicado usa la pila sans-serif del sistema; no hay fuente de marca confirmada. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif;
 }
 
 @layer base {
-  :root {
-    interpolate-size: allow-keywords;
-    color-scheme: dark;
-  }
-
   html {
-    background-color: var(--color-bg);
-    color: var(--color-crema);
-    font-synthesis: none;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   body {
-    font-family: var(--font-sans);
-    background-color: var(--color-bg);
+    min-height: 100svh;
   }
 
-  h1,
-  h2,
-  h3 {
-    font-family: var(--font-display);
-    font-weight: 400;
+  h1, h2, h3 {
     text-wrap: balance;
+    font-weight: 700;
+    letter-spacing: -0.02em;
   }
 
-  p,
-  li,
-  dd,
-  blockquote {
+  p, li {
     text-wrap: pretty;
   }
 
-  address {
-    font-style: normal;
-  }
-
-  strong,
-  b {
-    font-weight: 500;
-  }
-
-  em,
-  i {
-    font-style: normal;
+  :focus-visible {
+    outline: 3px solid var(--magenta);
+    outline-offset: 3px;
   }
 
   ::selection {
-    background-color: var(--color-teja);
-    color: var(--color-bg);
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--color-teja);
-    outline-offset: 4px;
+    background: var(--magenta);
+    color: #fff;
   }
 }
 
 @layer components {
-  /* Botón principal: teja con texto oscuro. */
+  .container-page {
+    width: min(100% - 2rem, 72rem);
+    margin-inline: auto;
+  }
+
+  /* Degradado reducido magenta -> violeta: es el único que pasa 4.5:1 con texto blanco. */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    min-height: 40px;
+    gap: 0.5rem;
+    min-height: 2.75rem;
     border-radius: 9999px;
-    padding: 8px 12px;
-    font-size: var(--text-base);
-    line-height: var(--text-base--line-height);
-    font-weight: 500;
-    transition:
-      background-color 700ms var(--ease-fluid),
-      color 700ms var(--ease-fluid),
-      transform 700ms var(--ease-fluid);
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: #fff;
+    background: linear-gradient(90deg, var(--magenta), var(--violeta));
+    transition: filter 180ms ease, transform 180ms ease;
   }
 
-  /* El texto va en un <span> recortado a la altura de las mayúsculas para que quede centrado ópticamente. */
-  .btn > span {
-    text-box: trim-both cap alphabetic;
-  }
-
-  /* Sin text-box, las mayúsculas de Zen Kaku Gothic New caen 0.086em por debajo del centro. */
-  @supports not (text-box: trim-both cap alphabetic) {
-    .btn > span {
-      translate: 0 -0.086em;
-    }
-  }
-
-  .btn-sm {
-    min-height: 36px;
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-  }
-
-  .btn-primary {
-    background-color: var(--color-teja);
-    color: var(--color-bg);
-  }
-
-  .btn-primary:hover {
-    background-color: var(--color-crema);
-    transform: scale(1.02);
-  }
-
-  .btn-ghost {
-    color: var(--color-crema);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-crema) 30%, transparent);
-  }
-
-  .btn-ghost:hover {
-    background-color: var(--color-crema);
-    color: var(--color-bg);
-    transform: scale(1.02);
+  .btn:hover {
+    filter: brightness(1.08);
   }
 
   .btn:active {
-    transform: scale(0.98);
+    transform: translateY(1px);
   }
 
-  .link {
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 4px;
-    text-decoration-color: color-mix(in oklab, var(--color-crema) 35%, transparent);
-    transition:
-      color 700ms var(--ease-fluid),
-      text-decoration-color 700ms var(--ease-fluid);
+  .btn-outline {
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--line);
   }
 
-  .link:hover {
-    color: var(--color-teja);
-    text-decoration-color: var(--color-teja);
+  .btn-outline:hover {
+    background: var(--surface);
   }
 
-  /* Máscaras: arco, óvalo y espejo de borde orgánico. */
-  .mask-arch {
-    border-radius: 9999px 9999px 0 0;
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 1rem;
+    padding: 1.5rem;
   }
 
-  .mask-oval {
-    border-radius: 50%;
+  .eyebrow {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cian-texto);
   }
 
-  .mask-mirror {
-    border-radius: 46% 54% 41% 59% / 57% 44% 56% 43%;
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 50;
+    background: var(--surface);
+    color: var(--text);
+    padding: 0.75rem 1rem;
   }
 
-  .mask-mirror-alt {
-    border-radius: 58% 42% 52% 48% / 44% 58% 42% 56%;
-  }
-
-  /* Marco de espejo: aro crema fino con 8px de aire. */
-  .mirror-frame {
-    padding: 8px;
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-crema) 28%, transparent);
-  }
-
-  /* Entrada al hacer scroll: sube, enfoca y aparece. */
-  .js [data-reveal] {
-    opacity: 0;
-    transform: translateY(4rem);
-    filter: blur(12px);
-    transition:
-      opacity 1000ms var(--ease-fluid),
-      transform 1000ms var(--ease-fluid),
-      filter 1000ms var(--ease-fluid);
-    transition-delay: var(--d, 0ms);
-  }
-
-  .js [data-reveal].is-in {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-
-  /* Acordeón de preguntas. */
-  .faq::details-content {
-    block-size: 0;
-    overflow-y: clip;
-    transition:
-      block-size 700ms var(--ease-fluid),
-      content-visibility 700ms allow-discrete;
-  }
-
-  .faq[open]::details-content {
-    block-size: auto;
-  }
-
-  .faq summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .faq .faq-icon {
-    transition: transform 700ms var(--ease-fluid);
-  }
-
-  .faq[open] .faq-icon {
-    transform: rotate(45deg);
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .js [data-reveal] {
-    transform: none;
-    filter: none;
-    transition: opacity 400ms var(--ease-fluid);
-  }
+/* Fondo decorativo con manchas difuminadas; no interfiere con la legibilidad. */
+.fondo-decorativo {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38rem 24rem at 8% -6%, color-mix(in srgb, var(--magenta) 14%, transparent), transparent 70%),
+    radial-gradient(34rem 22rem at 96% 8%, color-mix(in srgb, var(--violeta) 14%, transparent), transparent 70%),
+    radial-gradient(30rem 20rem at 50% 110%, color-mix(in srgb, var(--cian-texto) 10%, transparent), transparent 70%);
+}
 
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-  }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn { transition: none; }
 }

@@ -1,29 +1,78 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import ScrollWorld from '../components/ScrollWorld.astro';
-import Tagline from '../components/Tagline.astro';
-import Dishes from '../components/Dishes.astro';
-import Press from '../components/Press.astro';
-import Experiences from '../components/Experiences.astro';
-import Faq from '../components/Faq.astro';
-import Gift from '../components/Gift.astro';
-import FinalCta from '../components/FinalCta.astro';
-import { seo } from '../data/arko';
-import { structuredData } from '../data/schema';
 
-const site = Astro.site;
-if (!site) throw new Error('Falta site en astro.config.mjs');
-const jsonLd = JSON.stringify(structuredData(site)).replaceAll('<', '\\u003c');
+const servicios = (await getCollection('servicios'))
+  .filter((entrada) => !entrada.data.draft)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const fases = servicios.filter((entrada) => entrada.data.maturityOrder > 0)
+  .sort((a, b) => a.data.maturityOrder - b.data.maturityOrder);
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Kasuiro S.A.S.',
+  slogan: 'Tu Departamento de Tecnología Externalizado',
+  description: 'Ayuda a pymes a digitalizar sus procesos sin contratar un equipo de TI completo.',
+  url: Astro.site?.href,
+  inLanguage: 'es',
+}).replaceAll('<', '\\u003c');
 ---
 
-<Layout title={seo.title} description={seo.description}>
+<Layout
+  title="Tu Departamento de Tecnología Externalizado"
+  description="Ayudamos a pymes a digitalizar sus procesos sin contratar un equipo de TI completo. Auditoría, implementación y soporte continuo con herramientas open source."
+>
   <script slot="head" type="application/ld+json" set:html={jsonLd} />
-  <ScrollWorld />
-  <Tagline />
-  <Dishes />
-  <Press />
-  <Experiences />
-  <Faq />
-  <Gift />
-  <FinalCta />
+
+  <section class="container-page py-20 sm:py-28">
+    <p class="eyebrow">Kasuiro SAS</p>
+    <h1 class="mt-4 max-w-4xl text-4xl leading-tight sm:text-6xl">
+      Tu Departamento de Tecnología Externalizado
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg text-muted">
+      Ayudamos a pymes a digitalizar sus procesos sin contratar un equipo de TI completo.
+      Auditoría, implementación y soporte continuo, con herramientas que ya usan las empresas
+      más ágiles del mundo.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a class="btn" href="/auditoria-express">Solicitar Auditoría Express</a>
+      <a class="btn btn-outline" href="/servicios/ruta-de-madurez-digital">Ver Ruta de Madurez Digital</a>
+    </div>
+  </section>
+
+  <section class="container-page py-12" aria-labelledby="como-trabajamos">
+    <h2 id="como-trabajamos" class="text-3xl">Cómo trabajamos</h2>
+    <p class="mt-3 max-w-2xl text-muted">
+      Un solo socio para estrategia, tecnología y operación, con soberanía de datos.
+    </p>
+    <ol class="mt-8 grid gap-5 md:grid-cols-3">
+      {fases.map(({ id, data }, i) => (
+        <li class="card flex flex-col gap-3">
+          <span class="eyebrow">Fase {i + 1}</span>
+          <h3 class="text-xl">{data.title}</h3>
+          <p class="text-sm text-muted">{data.summary}</p>
+          <a class="mt-auto text-sm font-semibold text-cian-texto hover:underline" href={`/servicios/${data.slug || id}`}>
+            Ver detalle
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="container-page py-12" aria-labelledby="servicios">
+    <h2 id="servicios" class="text-3xl">Servicios</h2>
+    <ul class="mt-8 grid gap-5 sm:grid-cols-2">
+      {servicios.map(({ id, data }) => (
+        <li class="card">
+          <h3 class="text-xl">{data.title}</h3>
+          <p class="mt-2 text-sm text-muted">{data.summary}</p>
+          <a class="mt-4 inline-block text-sm font-semibold text-cian-texto hover:underline" href={`/servicios/${data.slug || id}`}>
+            Ver detalle
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
 </Layout>
