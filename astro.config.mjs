@@ -8,7 +8,12 @@ export default defineConfig({
   // URL canónica del despliegue. PENDIENTE: cambiarla por el dominio propio
   // cuando esté configurado (tarjeta «Montar deploy automático...»).
   site: 'https://kasuiro-sas.kasuirogroup.workers.dev',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // La página de agradecimiento es noindex: no debe entrar en el sitemap.
+      filter: (page) => !page.endsWith('/auditoria-express/gracias/'),
+    }),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },

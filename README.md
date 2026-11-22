@@ -10,7 +10,7 @@ pendiente).
 
 **Stack:** [Astro 7](https://astro.build) · [Tailwind CSS 4](https://tailwindcss.com) ·
 [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/) ·
-[Cloudflare Workers](https://developers.cloudflare.com/workers/) (solo assets, sin código de Worker).
+[Cloudflare Workers](https://developers.cloudflare.com/workers/) (assets estáticos + un Worker mínimo para el formulario).
 
 ## Puesta en marcha
 
@@ -30,8 +30,9 @@ La web queda en `http://localhost:4321`.
 | `pnpm build` | Genera la web estática en `dist/` |
 | `pnpm preview` | Sirve el build en local para revisarlo antes de publicar |
 
-Tras el build se generan 13 páginas: portada, servicios, recursos (con el artículo ancla
-publicado), casos de éxito, Auditoría Express, Habeas Data, 404, `robots.txt` y `llms.txt`.
+Tras el build se generan 14 páginas: portada, servicios, recursos (con el artículo ancla
+publicado), casos de éxito, Auditoría Express, su página de agradecimiento, Habeas Data, 404,
+`robots.txt` y `llms.txt`.
 
 ## Contenido
 
@@ -78,7 +79,7 @@ src/
 │   ├── servicios/          Listado y detalle por slug
 │   ├── recursos/           Listado y detalle por slug
 │   ├── casos-exito/        Estado pendiente
-│   ├── auditoria-express/  Landing con formulario (desactivado hasta conectar Resend)
+│   ├── auditoria-express/  Landing con formulario y página `gracias` (noindex)
 │   ├── habeas-data.astro   Aviso de política pendiente de revisión legal
 │   ├── robots.txt.ts       Enlace al sitemap
 │   ├── llms.txt.ts         Resumen en texto plano para asistentes de IA
@@ -91,7 +92,9 @@ src/
 public/
 ├── _headers                Caché de un año para los archivos con hash de /_astro/
 └── site.webmanifest        Manifest de Kasuiro SAS
+worker/index.ts             Worker mínimo: sirve assets y atiende POST /api/auditoria-express
 wrangler.jsonc              Worker `kasuiro-sas`, sirve `./dist` con página 404 propia
+.dev.vars.example           Plantilla de variables de Resend (sin valores reales)
 ```
 
 La plantilla original aportaba la base técnica (Astro, Tailwind, sitemap, Cloudflare), pero su
@@ -120,13 +123,51 @@ prompts. No queda ninguna referencia a ese proyecto en el código ni en los arch
 - Cada página define título y descripción; `Layout.astro` añade canonical, `hreflang`,
   Open Graph y Twitter Card. Las páginas legales y la 404 llevan `noindex`.
 - La portada incluye un grafo JSON-LD `Organization` con el nombre, el lema y la descripción.
-- `@astrojs/sitemap` genera el índice de sitemap automáticamente; `robots.txt` lo enlaza.
+- `@astrojs/sitemap` genera el índice de sitemap automáticamente; `robots.txt` lo enlaza. La página
+  de agradecimiento se excluye del sitemap porque lleva `noindex`.
+
+## Formulario de Auditoría Express
+
+El formulario y la página `/auditoria-express/gracias` están preparados, pero **el envío está
+desactivado por defecto**. No se activa hasta que el dominio de envío esté verificado en Resend y
+existan las credenciales.
+
+- El Worker (`worker/index.ts`) solo intercepta `POST /api/auditoria-express`; el resto de las
+  peticiones se sirven desde `dist/`. Valida campos, exige consentimiento, aplica un honeypot y
+  envía el correo con la API de Resend. Si faltan variables, responde `503` y no revela secretos.
+- El botón del formulario se habilita en el build solo si `PUBLIC_RESEND_ENABLED=true`. Esa variable
+  **no es un secreto**; las claves de Resend se leen únicamente en el Worker.
+- La sincronización con una audiencia de Resend existe pero está desactivada
+  (`RESEND_CONTACT_SYNC=0`). Solo activarla cuando el consentimiento y el doble *opt-in* estén
+  aprobados por abogado.
+- El texto de consentimiento y `/habeas-data` siguen pendientes de revisión legal; la página de
+  agradecimiento lleva `noindex`.
+
+Variables del Worker (copiar `.dev.vars.example` a `.dev.vars` solo en local):
+
+| Variable | Uso |
+| :-- | :-- |
+| `RESEND_API_KEY` | Clave de API de Resend (secreto; nunca en el repo) |
+| `RESEND_FROM` | Remitente en el dominio verificado |
+| `RESEND_TO` | Destinatario interno de la solicitud |
+| `RESEND_REPLY_TO` | Respuesta; por defecto, el correo del solicitante |
+| `RESEND_AUDIENCE_ID` | Opcional; audiencia de Resend |
+| `RESEND_CONTACT_SYNC` | `1` para sincronizar contactos; por defecto desactivado |
+
+Para probar el endpoint en local:
+
+```sh
+pnpm build
+cp .dev.vars.example .dev.vars   # rellenar con valores de prueba
+pnpm dlx wrangler@4 dev
+```
 
 ## Despliegue
 
-`wrangler.jsonc` define el Worker `kasuiro-sas`, que sirve el contenido de `dist/` sin código
-de Worker y usa la página 404 propia. El repo está conectado a Cloudflare, así que un push a
-`main` debe disparar el despliegue.
+`wrangler.jsonc` define el Worker `kasuiro-sas`, que sirve el contenido de `dist/`, usa la página
+404 propia y solo ejecuta código en `/api/*`. El repo está conectado a Cloudflare, así que un push
+a `main` debe disparar el despliegue. Las variables de Resend se configuran como secretos del
+Worker en el panel de Cloudflare, nunca en el repositorio.
 
 ```sh
 pnpm build
@@ -143,9 +184,9 @@ disponible en este equipo pertenece a otra cuenta y devuelve `403`.
 - Isotipo y tipografía oficiales (sin confirmar en el Manual).
 - GA4 y registrar el sitio en Search Console (las keywords y el calendario ya están preparados
   en las notas del Vault; falta medir y ejecutar).
-- Dominio y API de Resend; el formulario sigue desactivado.
-- Conectar el formulario de Auditoría Express a **Resend** y verificar el dominio de envío
-  (decisión de Julián, 22-nov-2026; Brevo queda descartado).
+- Verificar el dominio de envío en **Resend**, configurar los secretos del Worker y publicar con
+  `PUBLIC_RESEND_ENABLED=true` para habilitar el formulario (decisión de Julián, 22-nov-2026;
+  Brevo queda descartado). La integración ya está preparada pero sigue desactivada.
 - Redactar la política de Habeas Data con revisión legal.
 - Los únicos archivos genéricos que se conservan de la plantilla son `AGENTS.md`,
   `CLAUDE.md`, `.vscode/` y `.claude/skills/landing-page-design/SKILL.md` (skill de diseño,

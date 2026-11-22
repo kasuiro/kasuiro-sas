@@ -1,0 +1,11 @@
+# Copiar a .dev.vars para probar el endpoint con `wrangler dev` (nunca subir .dev.vars).
+# Dominio de envío: verificar SPF/DKIM en Resend antes de usar estos valores en producción.
+RESEND_API_KEY=re_TU_CLAVE_DE_RESEND
+RESEND_FROM=Kasuiro SAS <no-reply@TU_DOMINIO_VERIFICADO>
+RESEND_TO=TU_CORREO@TU_DOMINIO_VERIFICADO
+RESEND_REPLY_TO=TU_CORREO@TU_DOMINIO_VERIFICADO
+
+# Opcional: sincronizar contactos con una audiencia de Resend.
+# No activar hasta que el consentimiento y el doble opt-in estén aprobados por abogado.
+# RESEND_AUDIENCE_ID=
+# RESEND_CONTACT_SYNC=0

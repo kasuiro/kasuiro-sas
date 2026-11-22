@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # wrangler
 .wrangler/
+.dev.vars
 
 # material de trabajo pesado que no debe subirse al repo
 media/**/*.mp4

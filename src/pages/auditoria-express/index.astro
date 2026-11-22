@@ -18,28 +18,46 @@ import Layout from '../../layouts/Layout.astro';
     <div class="mt-12 grid gap-8 md:grid-cols-2">
       <div class="card">
         <h2 class="text-2xl">Solicitar Auditoría Express</h2>
-        <form class="mt-6 grid gap-4" aria-label="Solicitud de Auditoría Express">
+        <form id="form-auditoria" class="mt-6 grid gap-4" aria-label="Solicitud de Auditoría Express">
           <label class="grid gap-1 text-sm">
             Nombre
-            <input class="rounded-lg border border-line bg-bg p-2" name="nombre" type="text" autocomplete="name" required />
+            <input class="rounded-lg border border-line bg-bg p-2" name="nombre" type="text" autocomplete="name" maxlength="120" required />
           </label>
           <label class="grid gap-1 text-sm">
             Correo
-            <input class="rounded-lg border border-line bg-bg p-2" name="email" type="email" autocomplete="email" required />
+            <input class="rounded-lg border border-line bg-bg p-2" name="email" type="email" autocomplete="email" maxlength="254" required />
           </label>
           <label class="grid gap-1 text-sm">
             Empresa
-            <input class="rounded-lg border border-line bg-bg p-2" name="empresa" type="text" autocomplete="organization" required />
+            <input class="rounded-lg border border-line bg-bg p-2" name="empresa" type="text" autocomplete="organization" maxlength="160" required />
+          </label>
+          <label class="grid gap-1 text-sm">
+            Tamaño de la empresa <span class="text-muted">(opcional)</span>
+            <input class="rounded-lg border border-line bg-bg p-2" name="companySize" type="text" maxlength="80" />
+          </label>
+          <label class="grid gap-1 text-sm">
+            Sector <span class="text-muted">(opcional)</span>
+            <input class="rounded-lg border border-line bg-bg p-2" name="industry" type="text" maxlength="80" />
+          </label>
+          <label class="sr-only" aria-hidden="true">
+            No completar este campo
+            <input name="website" type="text" tabindex="-1" autocomplete="off" />
           </label>
           <label class="flex items-start gap-2 text-sm text-muted">
-            <input name="consentimiento" type="checkbox" required />
+            <input name="consentimiento" type="checkbox" value="true" required />
             <span>Acepto la política de tratamiento de datos y el consentimiento para ser contactado.</span>
           </label>
-          <button class="btn" type="submit" disabled>Enviar solicitud</button>
+          <button
+            class="btn"
+            type="submit"
+            disabled={import.meta.env.PUBLIC_RESEND_ENABLED !== 'true'}
+          >Enviar solicitud</button>
+          <p id="form-estado" class="text-sm text-muted" role="alert" aria-live="polite"></p>
         </form>
         <p class="mt-4 text-sm text-muted">
-          Proveedor definido: <strong>Resend</strong> (decisión de Julián, 22-nov-2026).
-          Pendiente: verificar el dominio de envío y conectar la API antes de activar el formulario.
+          Integración preparada con <strong>Resend</strong>. El envío se activa cuando se verifique
+          el dominio y se configuren las variables de entorno; hasta entonces el formulario
+          permanece desactivado.
         </p>
       </div>
 
@@ -52,4 +70,45 @@ import Layout from '../../layouts/Layout.astro';
       </aside>
     </div>
   </section>
+
+  <script>
+    const form = document.getElementById('form-auditoria') as HTMLFormElement | null;
+    const estado = document.getElementById('form-estado') as HTMLParagraphElement | null;
+    const boton = form?.querySelector<HTMLButtonElement>('button[type="submit"]') ?? null;
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form || !estado) return;
+      estado.textContent = '';
+
+      const datos = new FormData(form);
+      const payload = {
+        nombre: String(datos.get('nombre') ?? '').trim(),
+        email: String(datos.get('email') ?? '').trim(),
+        empresa: String(datos.get('empresa') ?? '').trim(),
+        companySize: String(datos.get('companySize') ?? '').trim(),
+        industry: String(datos.get('industry') ?? '').trim(),
+        consentimiento: datos.get('consentimiento') === 'true',
+        website: String(datos.get('website') ?? ''),
+      };
+
+      if (boton) boton.disabled = true;
+      try {
+        const respuesta = await fetch('/api/auditoria-express', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const resultado = await respuesta.json().catch(() => ({}));
+        if (!respuesta.ok) {
+          throw new Error(resultado.error || 'No pudimos enviar la solicitud.');
+        }
+        window.location.assign('/auditoria-express/gracias');
+      } catch (error) {
+        estado.textContent =
+          error instanceof Error ? error.message : 'No pudimos enviar la solicitud.';
+        if (boton && import.meta.env.PUBLIC_RESEND_ENABLED === 'true') boton.disabled = false;
+      }
+    });
+  </script>
 </Layout>
