@@ -19,7 +19,36 @@
   --text: var(--ink);
   --text-soft: var(--ink-soft);
   --line: var(--bruma);
+  --tamano-texto: 1;
   color-scheme: light;
+}
+
+/* Contraste alto: textos y bordes al máximo, botones sólidos y legibles. */
+:root.contraste-alto {
+  --text: #000000;
+  --text-soft: #1a1a1a;
+  --line: #000000;
+  --magenta: #7a0056;
+  --violeta: #3b0a75;
+  --cian-texto: #00566b;
+}
+
+:root.contraste-alto.dark {
+  --text: #ffffff;
+  --text-soft: #f2f2f2;
+  --line: #ffffff;
+  --magenta: #ff66c4;
+  --violeta: #b18cff;
+  --cian-texto: #7fd8ee;
+}
+
+:root.contraste-alto .btn {
+  background: var(--magenta);
+}
+
+:root.contraste-alto.dark .btn {
+  background: #ffffff;
+  color: #000000;
 }
 
 :root.dark {
@@ -49,8 +78,17 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
+    font-size: calc(16px * var(--tamano-texto));
     -webkit-font-smoothing: antialiased;
     scroll-behavior: smooth;
+  }
+
+  :root.pausar-animaciones,
+  :root.pausar-animaciones * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 
   body {

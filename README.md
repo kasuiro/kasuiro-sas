@@ -30,8 +30,8 @@ La web queda en `http://localhost:4321`.
 | `pnpm build` | Genera la web estática en `dist/` |
 | `pnpm preview` | Sirve el build en local para revisarlo antes de publicar |
 
-Tras el build se generan 12 páginas: portada, servicios, recursos, casos de éxito,
-Auditoría Express, Habeas Data, 404, `robots.txt` y `llms.txt`.
+Tras el build se generan 13 páginas: portada, servicios, recursos (con el artículo ancla
+publicado), casos de éxito, Auditoría Express, Habeas Data, 404, `robots.txt` y `llms.txt`.
 
 ## Contenido
 
@@ -58,8 +58,9 @@ herramientas concretas para seguir compatible con el cambio de stack del 18-nov-
 
 **No inventar.** Los textos, precios y condiciones proceden del *Manual de Marca y Contexto —
 Kasuiro* (21-nov-2026) y del tablero de Trello. Lo que no está verificado se marca como
-`pendiente` o con `draft: true` y no se publica. Los artículos ancla están en borrador y la
-colección de casos de éxito está vacía a la espera de casos reales.
+`pendiente` o con `draft: true` y no se publica. Hay un artículo ancla publicado («Qué es la
+Ruta de Madurez Digital»); el de CRM sigue en borrador por falta de fuente para la comparativa
+y la colección de casos de éxito está vacía a la espera de casos reales.
 
 Las condiciones legales y tributarias requieren revisión de abogado y contador antes de ejecutarse.
 
@@ -70,7 +71,7 @@ src/
 ├── content.config.ts       Esquemas de las tres colecciones (astro:content + glob loader)
 ├── content/
 │   ├── servicios/          Auditoría Express, Ruta de Madurez y fases 1–3
-│   ├── recursos/           Artículos ancla (borradores)
+│   ├── recursos/           1 artículo publicado + 1 borrador de CRM
 │   └── casos-exito/        Vacío; marcador pendiente
 ├── pages/
 │   ├── index.astro         Portada: lema, fases y servicios
@@ -106,6 +107,8 @@ prompts. No queda ninguna referencia a ese proyecto en el código ni en los arch
   parpadeo.
 - Navegación con menú hamburguesa, `aria-expanded` / `aria-controls`, foco visible y enlace
   «Saltar al contenido».
+- Widget flotante de accesibilidad: tamaño de texto, contraste alto y pausa de animaciones, con
+  preferencias persistidas en `localStorage` y aplicadas antes de pintar.
 - Se respeta `prefers-reduced-motion`.
 - **No se crea un isotipo propio**: el Manual prohíbe presentar como oficial una versión
   redibujada. El logo real está pendiente.
@@ -138,7 +141,9 @@ disponible en este equipo pertenece a otra cuenta y devuelve `403`.
 - Dominio propio y SSL; `site` sigue apuntando al `*.workers.dev`.
 - Token de Cloudflare con acceso a la cuenta `kasuirogroup`.
 - Isotipo y tipografía oficiales (sin confirmar en el Manual).
-- GA4, Search Console, keywords objetivo y calendario de contenido de 4 semanas.
+- GA4 y registrar el sitio en Search Console (las keywords y el calendario ya están preparados
+  en las notas del Vault; falta medir y ejecutar).
+- Dominio y API de Resend; el formulario sigue desactivado.
 - Conectar el formulario de Auditoría Express a **Resend** y verificar el dominio de envío
   (decisión de Julián, 22-nov-2026; Brevo queda descartado).
 - Redactar la política de Habeas Data con revisión legal.
