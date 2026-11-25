@@ -59,9 +59,10 @@ herramientas concretas para seguir compatible con el cambio de stack del 18-nov-
 
 **No inventar.** Los textos, precios y condiciones proceden del *Manual de Marca y Contexto —
 Kasuiro* (21-nov-2026) y del tablero de Trello. Lo que no está verificado se marca como
-`pendiente` o con `draft: true` y no se publica. Hay un artículo ancla publicado («Qué es la
-Ruta de Madurez Digital»); el de CRM sigue en borrador por falta de fuente para la comparativa
-y la colección de casos de éxito está vacía a la espera de casos reales.
+`pendiente` o con `draft: true` y no se publica. Hay dos artículos ancla publicados («Qué es la
+Ruta de Madurez Digital» y «Auditoría Express: qué es y cuándo conviene»); el de CRM sigue en
+borrador por falta de fuente para la comparativa y la colección de casos de éxito está vacía a
+la espera de casos reales.
 
 Las condiciones legales y tributarias requieren revisión de abogado y contador antes de ejecutarse.
 
@@ -72,7 +73,7 @@ src/
 ├── content.config.ts       Esquemas de las tres colecciones (astro:content + glob loader)
 ├── content/
 │   ├── servicios/          Auditoría Express, Ruta de Madurez y fases 1–3
-│   ├── recursos/           1 artículo publicado + 1 borrador de CRM
+│   ├── recursos/           2 artículos publicados + 1 borrador de CRM
 │   └── casos-exito/        Vacío; marcador pendiente
 ├── pages/
 │   ├── index.astro         Portada: fondo scrolleable con seis paradas

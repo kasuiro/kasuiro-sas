@@ -9,8 +9,6 @@ tools: []
 draft: false
 ---
 
-# Qué es la Ruta de Madurez Digital
-
 ¿Tienes información repartida en muchos lugares, ventas que se siguen en conversaciones sueltas y datos de tus procesos que nadie mira? La Ruta de Madurez Digital es nuestra forma de ordenar esa situación por pasos, sin pedirte que contrates un equipo de TI completo.
 
 Somos Kasuiro SAS. Nuestro lema es «Tu Departamento de Tecnología Externalizado»: ayudamos a pymes colombianas a digitalizar sus procesos para que tengan orden operativo, automatización comercial e información útil, sin área de TI propia. Estrategia, tecnología y operación no son para nosotros departamentos aislados: están en un solo socio que te acompaña antes, durante y después de implementar.
