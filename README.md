@@ -161,9 +161,10 @@ Para sustituir un clip, regenera el MP4 con la misma duración y exporta su prim
 
 ## Formulario de Auditoría Express
 
-El formulario y la página `/auditoria-express/gracias` están preparados, pero **el envío está
-desactivado por defecto**. No se activa hasta que el dominio de envío esté verificado en Resend y
-existan las credenciales.
+El formulario y la página `/auditoria-express/gracias` están **activos en producción** desde el
+22-nov-2026: el build usa `PUBLIC_RESEND_ENABLED=true`, las credenciales están como secretos del
+Worker y una solicitud de prueba fue confirmada por Julián. El remitente actual es
+`onboarding@resend.dev`; para entregar a terceros hace falta un dominio propio verificado.
 
 - El Worker (`worker/index.ts`) solo intercepta `POST /api/auditoria-express`; el resto de las
   peticiones se sirven desde `dist/`. Valida campos, exige consentimiento, aplica un honeypot y
@@ -181,7 +182,7 @@ Variables del Worker (copiar `.dev.vars.example` a `.dev.vars` solo en local):
 | Variable | Uso |
 | :-- | :-- |
 | `RESEND_API_KEY` | Clave de API de Resend (secreto; nunca en el repo) |
-| `RESEND_FROM` | Remitente en el dominio verificado |
+| `RESEND_FROM` | Remitente (hoy `onboarding@resend.dev`; dominio propio pendiente) |
 | `RESEND_TO` | Destinatario interno de la solicitud |
 | `RESEND_REPLY_TO` | Respuesta; por defecto, el correo del solicitante |
 | `RESEND_AUDIENCE_ID` | Opcional; audiencia de Resend |
@@ -250,8 +251,7 @@ configuran con `wrangler secret put` en la misma sesión autenticada.
 ## Pendiente
 
 - Dominio propio y SSL; `site` apunta al `*.workers.dev` real de la cuenta.
-- Secretos de Resend (`RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TO`) y revisión legal del
-  consentimiento antes de abrir el formulario a visitantes.
+- Revisión legal del consentimiento y de la política de Habeas Data: el formulario ya está abierto.
 - Archivo vectorial del logotipo y tipografía oficiales. El ícono PNG original ya está integrado;
   el logotipo completo y los mockups de marca se guardan fuera del repo para otras piezas.
 - Sustituir los clips y pósteres de prueba del fondo por material oficial de marca cuando Julián
@@ -259,9 +259,10 @@ configuran con `wrangler secret put` en la misma sesión autenticada.
 - Configurar GA4 y Search Console: crear la propiedad, obtener los valores para `.env`, verificar
   la propiedad con la URL canónica vigente y enviar el sitemap. El código ya está preparado y no
   inyecta nada mientras las variables estén vacías; el consentimiento requiere revisión legal.
-- Verificar el dominio de envío en **Resend**, configurar los secretos del Worker y publicar con
-  `PUBLIC_RESEND_ENABLED=true` para habilitar el formulario (decisión de Julián, 22-nov-2026;
-  Brevo queda descartado). La integración ya está preparada pero sigue desactivada.
+- Los secretos del Worker (`RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TO`) ya están configurados y el
+  formulario está habilitado con `PUBLIC_RESEND_ENABLED=true` (decisión de Julián, 22-nov-2026;
+  Brevo queda descartado). Falta el dominio propio para cambiar `RESEND_FROM` a
+  `Kasuiro SAS <no-reply@DOMINIO>` y publicar SPF/DKIM/DMARC.
 - Redactar la política de Habeas Data con revisión legal.
 - Los únicos archivos genéricos que se conservan de la plantilla son `AGENTS.md`,
   `CLAUDE.md`, `.vscode/` y `.claude/skills/landing-page-design/SKILL.md` (skill de diseño,
