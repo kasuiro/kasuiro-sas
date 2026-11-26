@@ -1,23 +1,7 @@
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-type Key = { y: number; v: number };
-
-// Interpola un valor por tramos según la posición de scroll.
-const piecewise = (y: number, keys: Key[]) => {
-  if (y <= keys[0].y) return keys[0].v;
-  for (let i = 1; i < keys.length; i++) {
-    const a = keys[i - 1];
-    const b = keys[i];
-    if (y <= b.y) return a.v + (b.v - a.v) * ((y - a.y) / (b.y - a.y || 1));
-  }
-  return keys[keys.length - 1].v;
-};
-
-const clamp = gsap.utils.clamp(0, 1);
-
 // Fondo scrolleable con clips propios en loop constante.
-// Lenis + ScrollTrigger eligen la parada y mueven textos, foco y raíl; el vídeo nunca se congela con el scroll.
+// IntersectionObserver elige la parada activa; CSS y el navegador hacen las transiciones.
+// Sin GSAP ni Lenis: las seis paradas siguen siendo las mismas y el vídeo nunca se congela.
+
 export function initWorld(world: HTMLElement, reduceMotion: boolean) {
   const stage = world.querySelector<HTMLElement>('[data-stage]');
   if (!stage) return;
@@ -27,16 +11,13 @@ export function initWorld(world: HTMLElement, reduceMotion: boolean) {
   const fill = stage.querySelector<HTMLElement>('[data-rail-fill]');
   const hint = stage.querySelector<HTMLElement>('[data-hint]');
   const clips = [...stage.querySelectorAll<HTMLVideoElement>('[data-clip]')];
-  const last = stops.length - 1;
-  const focus = stops.map((stop) => Number(stop.dataset.focus ?? 50));
+  const last = Math.max(stops.length - 1, 0);
 
   const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
   const videoOn = clips.length > 0 && !reduceMotion && !saveData;
   if (!videoOn) stage.dataset.mode = 'poster';
 
-  const marks = stops.map((stop) => ScrollTrigger.create({ trigger: stop, start: 'top top' }));
   let current = -1;
-  let activeFrame = -1;
   let activeClip = -1;
 
   const setCurrent = (index: number) => {
@@ -82,33 +63,34 @@ export function initWorld(world: HTMLElement, reduceMotion: boolean) {
     }
   };
 
-  const render = (self: ScrollTrigger) => {
-    const y = self.scroll();
-    const w = piecewise(y, [...marks.map((mark, i) => ({ y: mark.start, v: i })), { y: self.end, v: stops.length }]);
-    const at = Math.min(w, last);
-    const index = Math.round(at);
-
+  const apply = (index: number) => {
     setCurrent(index);
-    stage.style.setProperty('--focus-x', `${piecewise(y, marks.map((mark, i) => ({ y: mark.start, v: focus[i] })))}%`);
-    if (fill) fill.style.transform = `scaleY(${at / last})`;
-    if (hint) hint.style.opacity = String(clamp(1 - w * 4));
-
-    if (index !== activeFrame) {
-      activeFrame = index;
-      frames.forEach((frame, i) => frame.classList.toggle('is-active', i === index));
-    }
-
+    frames.forEach((frame, i) => frame.classList.toggle('is-active', i === index));
     activate(index);
+    if (fill) fill.style.transform = `scaleY(${last ? index / last : 0})`;
+    if (hint) hint.style.opacity = index === 0 ? '1' : '0';
   };
 
-  const span = ScrollTrigger.create({
-    trigger: world,
-    start: 'top top',
-    end: 'bottom bottom',
-    onUpdate: render,
-    onRefresh: render,
-  });
-  render(span);
+  apply(0);
+
+  // Franja fina en la parte inferior del viewport: coincide con el punto medio
+  // entre marcas que usaba el scroll anterior y mantiene una sola parada activa.
+  const visible = new Set<number>();
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const index = stops.indexOf(entry.target as HTMLElement);
+        if (index < 0) continue;
+        if (entry.isIntersecting) visible.add(index);
+        else visible.delete(index);
+      }
+      if (visible.size === 0) return;
+      const next = Math.max(...visible);
+      if (next !== current) apply(next);
+    },
+    { rootMargin: '0px 0px -99% 0px', threshold: 0 },
+  );
+  stops.forEach((stop) => observer.observe(stop));
 
   if (videoOn) {
     document.addEventListener('visibilitychange', () => {

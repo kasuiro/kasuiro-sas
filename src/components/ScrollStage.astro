@@ -99,7 +99,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
         <article
           id={stop.id}
           data-stop
-          data-focus="50"
           class:list={[
             'stop',
             'pointer-events-none',
@@ -191,6 +190,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .clip.is-shown {
     opacity: 1;
+  }
+
+  [data-rail-fill] {
+    transition: transform 800ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  [data-hint] {
+    transition: opacity 700ms cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .rail-label {
