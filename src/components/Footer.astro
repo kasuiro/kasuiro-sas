@@ -1,7 +1,7 @@
 ---
 const year = new Date().getFullYear();
-// El control de medición solo aparece si GA4 está configurado en el build.
-const medicionDisponible = Boolean(import.meta.env.PUBLIC_GA4_MEASUREMENT_ID);
+// El control de medición solo aparece si GTM está configurado en el build.
+const medicionDisponible = Boolean(import.meta.env.PUBLIC_GTM_ID);
 ---
 
 <footer class="mt-20 border-t border-line py-10">

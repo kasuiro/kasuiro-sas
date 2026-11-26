@@ -18,7 +18,7 @@ const robots = noindex
 
 // Analítica y verificación de Search Console: solo se inyectan si hay valores.
 // El ID de medición es público; el token de GSC también va en el HTML (método meta tag).
-const ga4Id = import.meta.env.PUBLIC_GA4_MEASUREMENT_ID;
+const gtmId = import.meta.env.PUBLIC_GTM_ID;
 const gscToken = import.meta.env.PUBLIC_GSC_VERIFICATION;
 ---
 
@@ -44,10 +44,10 @@ const gscToken = import.meta.env.PUBLIC_GSC_VERIFICATION;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     {gscToken && <meta name="google-site-verification" content={gscToken} />}
-    {ga4Id && (
-      <script define:vars={{ ga4Id }}>
-        // GA4 solo se carga si la persona aceptó la medición. Sin consentimiento,
-        // no se descarga gtag ni se envían eventos (consent mode: denied por defecto).
+    {gtmId && (
+      <script define:vars={{ gtmId }}>
+        // GTM solo se carga si la persona aceptó la medición. Sin consentimiento,
+        // no se descarga gtm.js ni se envían eventos a Google.
         (function () {
           try {
             if (localStorage.getItem('kasuiro-analitica') !== 'si') return;
@@ -55,21 +55,13 @@ const gscToken = import.meta.env.PUBLIC_GSC_VERIFICATION;
             return;
           }
           window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            window.dataLayer.push(arguments);
-          }
-          window.gtag = gtag;
-          gtag('consent', 'default', {
-            analytics_storage: 'granted',
-            ad_storage: 'denied',
-            ad_user_data: 'denied',
-            ad_personalization: 'denied'
+          window.dataLayer.push({
+            'gtm.start': new Date().getTime(),
+            event: 'gtm.js'
           });
-          gtag('js', new Date());
-          gtag('config', ga4Id, { anonymize_ip: true });
           var script = document.createElement('script');
           script.async = true;
-          script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4Id);
+          script.src = 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(gtmId);
           document.head.appendChild(script);
         })();
       </script>

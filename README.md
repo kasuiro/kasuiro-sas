@@ -86,7 +86,7 @@ src/
 │   ├── robots.txt.ts       Enlace al sitemap
 │   ├── llms.txt.ts         Resumen en texto plano para asistentes de IA
 │   └── 404.astro
-├── layouts/Layout.astro    Metas, canonical, tema, GA4 y verificación de GSC
+├── layouts/Layout.astro    Metas, canonical, tema, GTM y verificación de GSC
 ├── components/
 │   ├── Header.astro        Menú responsive y alternador claro/oscuro
 │   ├── Footer.astro        Enlaces legales y control de consentimiento de medición
@@ -107,7 +107,7 @@ public/
 worker/index.ts             Worker mínimo: sirve assets y atiende POST /api/auditoria-express
 wrangler.jsonc              Worker `kasuiro-sas`, sirve `./dist` con página 404 propia
 .dev.vars.example           Plantilla de secretos de Resend para Wrangler (sin valores reales)
-.env.example                Plantilla de variables públicas de compilación (GA4 y GSC)
+.env.example                Plantilla de variables públicas de compilación (GTM y GSC)
 ```
 
 La plantilla original aportaba la base técnica (Astro, Tailwind, sitemap, Cloudflare), pero su
@@ -209,22 +209,24 @@ está ignorado por git.
 
 | Variable | Uso |
 | :-- | :-- |
-| `PUBLIC_GA4_MEASUREMENT_ID` | ID de medición de GA4 (`G-…`). Sin valor, no hay analítica. |
+| `PUBLIC_GTM_ID` | ID del contenedor web de Google Tag Manager (`GTM-…`). Sin valor, no hay analítica. |
 | `PUBLIC_GSC_VERIFICATION` | Token del método «Etiqueta HTML» de Search Console. Sin valor, no hay meta tag. |
 
-- GA4 usa `gtag.js` cargado de forma diferida. **No se envían datos sin consentimiento**: el script
-  solo se descarga si la persona marcó «Permitir medición de uso del sitio» (guardado en
-  `localStorage` como `kasuiro-analitica=si`). El control aparece en el pie solo cuando GA4 está
-  configurado y el cambio se aplica al recargar.
-- Se solicitan `analytics_storage: granted` y `ad_storage`, `ad_user_data` y `ad_personalization`
-  en `denied`. Este mecanismo es una medida de privacidad **pendiente de revisión legal**: no
-  sustituye un banner de consentimiento ni la política de Habeas Data.
+- El contenedor `GTM-KJ8JSKFF` (creado por Julián, 26-nov-2026) ya tiene la etiqueta de GA4
+  publicada; el sitio no carga `gtag.js` por separado para evitar duplicar mediciones.
+- GTM usa el fragmento oficial con el evento `gtm.start`, cargado de forma diferida. **No se envían
+  datos sin consentimiento**: el script solo se descarga si la persona marcó «Permitir medición de
+  uso del sitio» (guardado en `localStorage` como `kasuiro-analitica=si`). El control aparece en el
+  pie solo cuando GTM está configurado y el cambio se aplica al recargar. No se incluye el
+  `<noscript>` de GTM porque omitiría este control.
+- La configuración de consentimiento del contenedor y este mecanismo son una medida de privacidad
+  **pendiente de revisión legal**: no sustituyen un banner ni la política de Habeas Data.
 - Como alternativa a la variable de GSC, se puede descargar el archivo de verificación que entrega
   Google y colocarlo en `public/` con el nombre exacto indicado; no requiere tocar el código.
 
-Pasos pendientes de ejecutar (fuera del repo): crear la propiedad de GA4 y el flujo web, verificar
-el sitio en Search Console con la URL canónica vigente, enviar `sitemap-index.xml` y revisar las
-keywords definidas en `Vault/Projects/difusion-web-keywords.md`.
+Pasos pendientes de ejecutar (fuera del repo): entregar el ID del contenedor y el token de
+verificación de Search Console, verificar el sitio con la URL canónica vigente, enviar
+`sitemap-index.xml` y revisar las keywords definidas en `Vault/Projects/difusion-web-keywords.md`.
 
 ## Despliegue
 
@@ -260,9 +262,10 @@ configuran con `wrangler secret put` en la misma sesión autenticada.
   el logotipo completo y los mockups de marca se guardan fuera del repo para otras piezas.
 - Sustituir los clips y pósteres de prueba del fondo por material oficial de marca cuando Julián
   confirme logo vectorial y tipografía.
-- Configurar GA4 y Search Console: crear la propiedad, obtener los valores para `.env`, verificar
-  la propiedad con la URL canónica vigente y enviar el sitemap. El código ya está preparado y no
-  inyecta nada mientras las variables estén vacías; el consentimiento requiere revisión legal.
+- Configurar GTM y Search Console: obtener el ID del contenedor y el token de verificación,
+  verificar la propiedad con la URL canónica vigente y enviar el sitemap. El código ya está
+  preparado y no inyecta nada mientras las variables estén vacías; el consentimiento requiere
+  revisión legal.
 - Los secretos del Worker (`RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TO`) ya están configurados y el
   formulario está habilitado con `PUBLIC_RESEND_ENABLED=true` (decisión de Julián, 22-nov-2026;
   Brevo queda descartado). El dominio propio quedó pendiente por recursos (26-nov-2026), así que
