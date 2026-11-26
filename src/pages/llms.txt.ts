@@ -30,7 +30,7 @@ Contenido basado en el Manual de Marca y Contexto — Kasuiro (21 nov 2026). Los
 estimaciones de mercado 2026 y requieren revalidación periódica. Las condiciones legales y
 tributarias requieren revisión de abogado y contador.
 
-Pendiente: logotipo vectorial, tipografía oficial, dominio propio y política de Habeas Data.
+Pendiente: logotipo vectorial, tipografía oficial y política de Habeas Data. Dominio propio pendiente por recursos; el canonical vigente es kasuiro-sas.kasuiro-sas.workers.dev.
 `;
   return new Response(body, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },

@@ -5,11 +5,12 @@ Ayudamos a pymes colombianas a digitalizar sus procesos sin contratar un equipo 
 
 Es una web estática hecha con Astro y servida por Cloudflare Workers. Desplegada el
 22-nov-2026 en la cuenta `8be33c…` (`julianfajardoc2002-@hotmail.com`) como Worker `kasuiro-sas`.
-URL pública: `https://kasuiro-sas.kasuiro-sas.workers.dev` (dominio propio pendiente).
+URL pública: `https://kasuiro-sas.kasuiro-sas.workers.dev` (canonical vigente; dominio propio
+pendiente por recursos, decisión de Julián 26-nov-2026).
 
 **Stack:** [Astro 7](https://astro.build) · [Tailwind CSS 4](https://tailwindcss.com) ·
 [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap/) ·
-[Lenis](https://lenis.dev/) + [GSAP ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/) (fondo scrolleable de la portada) ·
+`IntersectionObserver` nativo (fondo scrolleable de la portada) ·
 [Cloudflare Workers](https://developers.cloudflare.com/workers/) (assets estáticos + un Worker mínimo para el formulario).
 
 ## Puesta en marcha
@@ -92,7 +93,7 @@ src/
 │   └── ScrollStage.astro   Escenario fijo, clips en loop, raíl y textos de las paradas
 ├── data/scroll.ts          Seis paradas: textos, clips, pósteres y CTA (sin inventar copys)
 ├── scripts/
-│   ├── motion.ts           Lenis + ScrollTrigger + entradas con IntersectionObserver
+│   ├── motion.ts           Entradas con IntersectionObserver + arranque del mundo
 │   └── world.ts            Selección del clip activo, foco, raíl y pausa al ocultar la pestaña
 ├── styles/global.css       Paleta verificada, botones, tarjetas y fondo decorativo
 public/
@@ -150,7 +151,8 @@ Para sustituir un clip, regenera el MP4 con la misma duración y exporta su prim
 ## SEO
 
 - `site` en `astro.config.mjs` es la URL canónica: de ella salen el canonical, `og:url`, el
-  sitemap y `robots.txt`. Cambiarla ahí al contratar el dominio propio.
+  sitemap y `robots.txt`. Se mantiene el workers.dev mientras no haya dominio propio (pendiente
+  por recursos).
 - Cada página define título y descripción; `Layout.astro` añade canonical, `hreflang`,
   Open Graph y Twitter Card. Las páginas legales y la 404 llevan `noindex`.
 - La portada incluye un grafo JSON-LD `Organization` con el nombre, el lema y la descripción.
@@ -164,7 +166,9 @@ Para sustituir un clip, regenera el MP4 con la misma duración y exporta su prim
 El formulario y la página `/auditoria-express/gracias` están **activos en producción** desde el
 22-nov-2026: el build usa `PUBLIC_RESEND_ENABLED=true`, las credenciales están como secretos del
 Worker y una solicitud de prueba fue confirmada por Julián. El remitente actual es
-`onboarding@resend.dev`; para entregar a terceros hace falta un dominio propio verificado.
+`onboarding@resend.dev`: el Worker notifica a `RESEND_TO` y usa el correo del visitante como
+`reply_to`, así que la captación sigue activa. Un dominio propio verificado (pendiente por
+recursos) permitiría `no-reply@DOMINIO` como remitente.
 
 - El Worker (`worker/index.ts`) solo intercepta `POST /api/auditoria-express`; el resto de las
   peticiones se sirven desde `dist/`. Valida campos, exige consentimiento, aplica un honeypot y
@@ -182,7 +186,7 @@ Variables del Worker (copiar `.dev.vars.example` a `.dev.vars` solo en local):
 | Variable | Uso |
 | :-- | :-- |
 | `RESEND_API_KEY` | Clave de API de Resend (secreto; nunca en el repo) |
-| `RESEND_FROM` | Remitente (hoy `onboarding@resend.dev`; dominio propio pendiente) |
+| `RESEND_FROM` | Remitente (hoy `onboarding@resend.dev`; dominio propio pendiente por recursos) |
 | `RESEND_TO` | Destinatario interno de la solicitud |
 | `RESEND_REPLY_TO` | Respuesta; por defecto, el correo del solicitante |
 | `RESEND_AUDIENCE_ID` | Opcional; audiencia de Resend |
@@ -261,8 +265,9 @@ configuran con `wrangler secret put` en la misma sesión autenticada.
   inyecta nada mientras las variables estén vacías; el consentimiento requiere revisión legal.
 - Los secretos del Worker (`RESEND_API_KEY`, `RESEND_FROM`, `RESEND_TO`) ya están configurados y el
   formulario está habilitado con `PUBLIC_RESEND_ENABLED=true` (decisión de Julián, 22-nov-2026;
-  Brevo queda descartado). Falta el dominio propio para cambiar `RESEND_FROM` a
-  `Kasuiro SAS <no-reply@DOMINIO>` y publicar SPF/DKIM/DMARC.
+  Brevo queda descartado). El dominio propio quedó pendiente por recursos (26-nov-2026), así que
+  se mantiene `RESEND_FROM=onboarding@resend.dev` y el canonical `workers.dev`; SPF/DKIM/DMARC
+  y el cambio a `Kasuiro SAS <no-reply@DOMINIO>` quedan diferidos.
 - Redactar la política de Habeas Data con revisión legal.
 - Los únicos archivos genéricos que se conservan de la plantilla son `AGENTS.md`,
   `CLAUDE.md`, `.vscode/` y `.claude/skills/landing-page-design/SKILL.md` (skill de diseño,
